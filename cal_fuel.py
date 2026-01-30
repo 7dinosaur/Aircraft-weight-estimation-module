@@ -81,8 +81,9 @@ class aircraft:
 
     def update_weight(self, iter_max: int = 10, err: float = 10) -> None:
         # print("液氢覆盖的航程：", self.range_h2)
-        self.target_R = self.target_R - self.range_h2
+        const_R = self.target_R
         for i in range(iter_max):
+            self.target_R = const_R - self.Breguet("h2")
             self.Wto -= self.h2_mass
             # print(self.target_R, self.Wto)
             self.fuel = self.inv_Breguet()*1.15         #反布雷盖公式计算燃油质量
@@ -107,7 +108,7 @@ def main():
         "payload" : 160*80, #有效载重
         "fuel" : 72.3 * 1000, 
         "extra_money" : 100*1000,
-        "h2_volume" : 40
+        "h2_volume" : 0
     }
     aircraft_bwb = aircraft(para_dict)
     aircraft_bwb.update_weight()
@@ -115,23 +116,23 @@ def main():
     print(aircraft_bwb.fuel)
     print(aircraft_bwb.h2_mass)
 
-    extra_list = []; best_R = []
-    for k in range(9):
-        aircraft_bwb.extra_money = (60 + 10*(k))*1000
-        extra_list.append(aircraft_bwb.extra_money)
-        r_list = []; wei = []; cost_list = []
-        for i in range(51):
-            aircraft_bwb.target_R = 5000 + 100*i
-            aircraft_bwb.update_weight()
-            r_list.append(aircraft_bwb.target_R)
-            wei.append(aircraft_bwb.Wto/1000)
-            cost_list.append(aircraft_bwb.cost)
-            plt.plot(r_list, cost_list)
-        best_R.append(r_list[np.argmin(cost_list)])
-        print(r_list[np.argmin(cost_list)])
-    np.savetxt("range2weight.dat", np.stack([r_list, wei], axis=0).T)
-    np.savetxt("range2cost.dat", np.stack([r_list, cost_list], axis=0).T)
-    np.savetxt("range2best.dat", np.stack([extra_list, best_R], axis=0).T)
+    # extra_list = []; best_R = []
+    # for k in range(9):
+    #     aircraft_bwb.extra_money = (60 + 10*(k))*1000
+    #     extra_list.append(aircraft_bwb.extra_money)
+    #     r_list = []; wei = []; cost_list = []
+    #     for i in range(51):
+    #         aircraft_bwb.target_R = 5000 + 100*i
+    #         aircraft_bwb.update_weight()
+    #         r_list.append(aircraft_bwb.target_R)
+    #         wei.append(aircraft_bwb.Wto/1000)
+    #         cost_list.append(aircraft_bwb.cost)
+    #         plt.plot(r_list, cost_list)
+    #     best_R.append(r_list[np.argmin(cost_list)])
+    #     print(r_list[np.argmin(cost_list)])
+    # np.savetxt("range2weight.dat", np.stack([r_list, wei], axis=0).T)
+    # np.savetxt("range2cost.dat", np.stack([r_list, cost_list], axis=0).T)
+    # np.savetxt("range2best.dat", np.stack([extra_list, best_R], axis=0).T)
 
 
 if __name__ == "__main__":
